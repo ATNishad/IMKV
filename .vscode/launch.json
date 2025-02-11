@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,  // Ensures output goes to an external console
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Users/agmelco/Desktop/mysys/ucrt64/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build with MSYS",
+            "internalConsoleOptions": "neverOpen",  // Keeps internal console from opening
+            "logging": { 
+                "engineLogging": false  // Set to false to reduce extra logging info
+            },
+            "launchCompleteCommand": "exec-run"
+        }
+    ]
+}
