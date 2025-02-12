@@ -30,8 +30,16 @@ int main(){
     //server socket creation
     int optval = 1;
     SOCKET socket_handle = socket(AF_INET,SOCK_STREAM, 0);
-    setsockopt(socket_handle,SOL_SOCKET,SO_REUSEADDR,(const char*)(&optval),sizeof(optval));
-
+    if(socket_handle == INVALID_SOCKET){
+        std::cout<<"SOCKET INITIALIZATION FAILED:"<<WSAGetLastError<<"\n";
+        return -1;
+    }
+    else{
+    if(setsockopt(socket_handle,SOL_SOCKET,SO_REUSEADDR,(const char*)(&optval),sizeof(optval)) !- 0){
+        std::cout<<"SET SOCKET OPTION FAILED:"<<WSAGetLastError<<"\n";
+        return -1;
+    }
+    }
     
     //binding socket to port and ip
     sockaddr_in socketAddressBind = {};
@@ -62,7 +70,30 @@ int main(){
         std::cout<<"ACCEPT FAILED:"<<WSAGetLastError()<<"\n";
         continue;
     }
+
+    //on successful acceptance send()
+    else{
     std::cout<<"CLIENT CONNECTED!!"<<"\n";
+    
+    std::string send_msg = "hello from server";
+    std::string recv_msg(1024 , '\0');
+
+    if(send(acceptedSocket,send_msg.c_str(),send_msg.size(),0)== SOCKET_ERROR){
+        std::cout<<"SEND FAILED:"<<WSAGetLastError()<<"\n";
+        return -1;
+    }
+
+    if(recv(acceptedSocket,&recv_msg[0],recv_msg.size(),0) == SOCKET_ERROR){
+        std::cout<<"RECEIVE FAILED:"<<WSAGetLastError<<"\n";
+        return -1;
+    }
+    else{
+        std::cout<<recv_msg;
+    }
+
+    }
+
+
     }
 
 
@@ -73,7 +104,7 @@ int main(){
     }
     else{
         std::cout<<"SOCKET CLOSED"<<"\n";
+        WSACleanup();
     }
-    WSACleanup();
 }
 
