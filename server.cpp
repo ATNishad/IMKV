@@ -39,12 +39,11 @@ int main(){
     SOCKET new_comm_socket = accept(server_socket_handle,(sockaddr*)&connecting_socket,&cs_len);
     
     while(true){
-    std::string s_server_msg = "HELLO FROM SERVER";
-    std::string r_client_msg(1024, '\0');
+    char s_server_msg[] = "HELLO FROM SERVER";
+    char r_client_msg[1024] = {};
 
-    send(new_comm_socket,s_server_msg.c_str(),s_server_msg.size(),0);
-    size_t recv_byte_size = recv(new_comm_socket,&r_client_msg[0],r_client_msg.size(),0);
-    r_client_msg.resize(recv_byte_size);
+    send(new_comm_socket,s_server_msg,sizeof(s_server_msg)-1,0);
+    size_t recv_byte_size = recv(new_comm_socket,&r_client_msg[0],sizeof(r_client_msg)-1,0);
     std::cout<<r_client_msg<<"\n";
     Sleep(10000);
     break;
@@ -54,5 +53,5 @@ int main(){
     closesocket(new_comm_socket);
     closesocket(server_socket_handle);    
     WSACleanup();
-    
+
 }

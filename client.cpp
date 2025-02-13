@@ -29,18 +29,17 @@ int main(){
     connect(client_socket_handle,(const sockaddr*)&clientSocketAddressBind,sizeof(clientSocketAddressBind));
 
     while(true){
-    std::string s_client_msg = "HELLO FROM CLIENT";
-    std::string r_server_msg(1024 , '\0');
+    char s_client_msg[] = "HELLO FROM CLIENT";
+    char r_server_msg[1024] = {};
 
-    send(client_socket_handle,s_client_msg.c_str(),s_client_msg.size(),0);
-    size_t recv_byte_size = recv(client_socket_handle,&r_server_msg[0],r_server_msg.size(),0);
+    send(client_socket_handle,s_client_msg,sizeof(s_client_msg)-1,0);
+    size_t recv_byte_size = recv(client_socket_handle,&r_server_msg[0],sizeof(r_server_msg)-1,0);
 
     if(recv_byte_size == SOCKET_ERROR || recv_byte_size == 0){
         Sleep(2000);
         continue;
     }
 
-    r_server_msg.resize(recv_byte_size);
     std::cout<<r_server_msg<<"\n";
     Sleep(10000);
     break;
