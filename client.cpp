@@ -7,7 +7,6 @@
 #define CLIENT_PORT_NUM 5000
 #define CLIENT_IP_ADDR "127.0.0.1"
 
-
 #include<winsock2.h>
 #include<windows.h>
 #include<iostream>
