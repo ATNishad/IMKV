@@ -14,6 +14,7 @@
 #include<cstdint>
 
 
+
 namespace full_SR{
 
     int receive_full(SOCKET handle,char* receive_buffer,size_t r_buffer_size){
@@ -22,7 +23,7 @@ namespace full_SR{
         if(recv_size <= 0){
             return -1;  //receive error
         }
-        assert(size_t(recv_size) < r_buffer_size); //check size 
+        assert(size_t(recv_size) <= r_buffer_size); //check size 
         r_buffer_size -= size_t(recv_size);
         receive_buffer += recv_size;
         }
@@ -35,7 +36,7 @@ namespace full_SR{
         if(send_size <= 0){
             return -1;
         }
-        assert((size_t)send_size < s_buffer_size);
+        assert((size_t)send_size <= s_buffer_size);
         s_buffer_size -= size_t(send_size);
         send_buffer += send_size;
         }
@@ -44,7 +45,7 @@ namespace full_SR{
     
 }
 
-int application_protocol(SOCKET new_comm_socket){
+int32_t server_protocol(SOCKET new_comm_socket){
     const size_t MAX_MSG_SIZE=2096; 
     
     //RECEIVE
@@ -52,7 +53,7 @@ int application_protocol(SOCKET new_comm_socket){
     size_t r_buffer_size = sizeof(receive_buffer);
 
     //receiving first 4 bytes
-    int r_err = full_SR::receive_full(new_comm_socket,receive_buffer,4);
+    int32_t r_err = full_SR::receive_full(new_comm_socket,receive_buffer,4);
     if(r_err != 0){
         std::cerr<<"FULL RECEIVE FAILED (byte)\n";
         return -1;        
@@ -62,21 +63,23 @@ int application_protocol(SOCKET new_comm_socket){
     memcpy(&r_len,receive_buffer,4);
     if(r_len > MAX_MSG_SIZE){
         std::cerr<<"RECEIVED MSG EXCEEDS BUFFER SIZE\n";
+        return -1;
     }
 
     //receiving the actual message
     r_err = full_SR::receive_full(new_comm_socket,&receive_buffer[4],r_len);
     if(r_err != 0){
         std::cerr<<"FULL RECEIVE FAILED (msg)\n";
+        return -1;
     }
     //printing client message on server    
-    std::cout<<"RECEIVED FROM CLIENT:"<<&receive_buffer[4];
+    std::cout<<"RECEIVED FROM CLIENT:"<<&receive_buffer[4]<<"\n";
     
     //SEND
     char msg[] = "HELLO FROM SERVER";
     char send_buffer[4+sizeof(msg)];
     
-    uint32_t s_len = sizeof(msg);
+    uint32_t s_len = strlen(msg);
     memcpy(send_buffer,&s_len,4);
     memcpy(&send_buffer[4],msg,s_len);
 
@@ -86,7 +89,6 @@ int application_protocol(SOCKET new_comm_socket){
         std::cerr<<"FULL SEND FAILED\n";
         return -1;        
     }
-
 
     return 0;
 }
@@ -116,6 +118,7 @@ int main(){
     SOCKET new_comm_socket ={};
 
     while(true){
+
     sockaddr_in connecting_socket = {};
     int cs_len = sizeof(connecting_socket);
     new_comm_socket = accept(server_socket_handle,(sockaddr*)&connecting_socket,&cs_len);
@@ -126,7 +129,7 @@ int main(){
     std::cout<<"CLIENT CONNECTED\n";
 
     while(true){
-    int err = application_protocol(new_comm_socket);
+    int32_t err = server_protocol(new_comm_socket);
     if(err != 0){
         std::cerr<<"APPLICATION PROTOCOL ERROR\n";
         break;
@@ -135,6 +138,7 @@ int main(){
     break;
     } 
 
+    std::cin.get();
 
     shutdown(new_comm_socket,SD_BOTH);
     closesocket(new_comm_socket);
